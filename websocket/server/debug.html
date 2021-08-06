@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.socket.io/socket.io-3.0.0.js"></script>
+    <script src="json-viewer.js"></script>
+    <link rel="stylesheet" href="json-viewer.css">
+</head>
+<body>
+    <div id="vsp">
+        <div id="data"></div>
+        <div id="igdata"></div>
+        <ul id="chat"></ul>
+    </div>
+    <script>
+        const dataV = new JSONViewer();
+        const igdataV = new JSONViewer();
+        document.querySelector("#data").appendChild(dataV.getContainer());
+        document.querySelector("#igdata").appendChild(igdataV.getContainer());
+
+        const socket = io('ws://localhost:9999');
+        socket.on('data', text => {
+            //document.getElementById("data").innerHTML = JSON.stringify(JSON.parse(text), null, 2);
+            // document.getElementById("data").innerHTML = jsonViewer.showJSON(text, -1, -1);
+            dataV.showJSON(JSON.parse(text), -1, -1)
+        });
+        socket.on('igdata', text => {
+            igdataV.showJSON(JSON.parse(text), -1, -1)
+        });
+        socket.on('chat', text => {
+            let body = JSON.parse(text)
+            const el = document.createElement('li');
+            el.innerHTML = body.id + " has " + body.state +  " " + (body.msg ? body.msg : "");
+            document.querySelector('#chat').appendChild(el)
+        });
+    </script>
+</body>
+</html>
